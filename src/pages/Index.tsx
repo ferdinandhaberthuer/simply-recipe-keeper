@@ -13,10 +13,40 @@ const Index = () => {
   const [recipes, setRecipes] = useState<Recipe[]>(getRecipes);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [search, setSearch] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refresh = useCallback(() => {
     setRecipes(getRecipes());
   }, []);
+
+  const handleExport = () => {
+    const json = exportRecipes();
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rezepte-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: `${recipes.length} Rezept(e) exportiert` });
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const result = importRecipes(reader.result as string);
+        refresh();
+        toast({ title: `${result.added} Rezept(e) importiert`, description: result.skipped > 0 ? `${result.skipped} bereits vorhanden` : undefined });
+      } catch {
+        toast({ title: "Import fehlgeschlagen", description: "Die Datei hat ein ungültiges Format.", variant: "destructive" });
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
 
   const handleDelete = (id: string) => {
     deleteRecipe(id);
