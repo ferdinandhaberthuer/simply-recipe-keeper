@@ -95,11 +95,32 @@ const Index = () => {
   return (
     <div className="mx-auto max-w-lg px-4 py-6 pb-24">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="font-display text-3xl font-bold">Meine Rezepte</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {recipes.length} {recipes.length === 1 ? "Rezept" : "Rezepte"} gespeichert
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Meine Rezepte</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {recipes.length} {recipes.length === 1 ? "Rezept" : "Rezepte"} gespeichert
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="rounded-lg bg-secondary p-2.5 text-secondary-foreground transition-colors hover:bg-accent"
+            aria-label="Rezepte importieren"
+          >
+            <Upload className="h-4 w-4" />
+          </button>
+          {recipes.length > 0 && (
+            <button
+              onClick={handleExport}
+              className="rounded-lg bg-secondary p-2.5 text-secondary-foreground transition-colors hover:bg-accent"
+              aria-label="Rezepte exportieren"
+            >
+              <Download className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Search */}
