@@ -1,9 +1,10 @@
-import { useState, useCallback } from "react";
-import { getRecipes, deleteRecipe, Recipe } from "@/lib/recipes";
+import { useState, useCallback, useRef } from "react";
+import { getRecipes, deleteRecipe, exportRecipes, importRecipes, Recipe } from "@/lib/recipes";
 import RecipeCard from "@/components/RecipeCard";
 import RecipeDetail from "@/components/RecipeDetail";
 import AddRecipeForm from "@/components/AddRecipeForm";
-import { Plus, Search, UtensilsCrossed } from "lucide-react";
+import { Plus, Search, UtensilsCrossed, Download, Upload } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 type View = "list" | "add" | "detail";
 
@@ -12,10 +13,40 @@ const Index = () => {
   const [recipes, setRecipes] = useState<Recipe[]>(getRecipes);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [search, setSearch] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refresh = useCallback(() => {
     setRecipes(getRecipes());
   }, []);
+
+  const handleExport = () => {
+    const json = exportRecipes();
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rezepte-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: `${recipes.length} Rezept(e) exportiert` });
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const result = importRecipes(reader.result as string);
+        refresh();
+        toast({ title: `${result.added} Rezept(e) importiert`, description: result.skipped > 0 ? `${result.skipped} bereits vorhanden` : undefined });
+      } catch {
+        toast({ title: "Import fehlgeschlagen", description: "Die Datei hat ein ungültiges Format.", variant: "destructive" });
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
 
   const handleDelete = (id: string) => {
     deleteRecipe(id);
@@ -64,11 +95,32 @@ const Index = () => {
   return (
     <div className="mx-auto max-w-lg px-4 py-6 pb-24">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="font-display text-3xl font-bold">Meine Rezepte</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {recipes.length} {recipes.length === 1 ? "Rezept" : "Rezepte"} gespeichert
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Meine Rezepte</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {recipes.length} {recipes.length === 1 ? "Rezept" : "Rezepte"} gespeichert
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="rounded-lg bg-secondary p-2.5 text-secondary-foreground transition-colors hover:bg-accent"
+            aria-label="Rezepte importieren"
+          >
+            <Upload className="h-4 w-4" />
+          </button>
+          {recipes.length > 0 && (
+            <button
+              onClick={handleExport}
+              className="rounded-lg bg-secondary p-2.5 text-secondary-foreground transition-colors hover:bg-accent"
+              aria-label="Rezepte exportieren"
+            >
+              <Download className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Search */}

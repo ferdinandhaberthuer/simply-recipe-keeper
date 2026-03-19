@@ -31,6 +31,24 @@ export const deleteRecipe = (id: string): void => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
 };
 
+export const exportRecipes = (): string => {
+  const recipes = getRecipes();
+  return JSON.stringify({ version: 1, recipes }, null, 2);
+};
+
+export const importRecipes = (jsonString: string): { added: number; skipped: number } => {
+  const data = JSON.parse(jsonString);
+  if (!data.recipes || !Array.isArray(data.recipes)) {
+    throw new Error("Ungültiges Dateiformat");
+  }
+  const existing = getRecipes();
+  const existingIds = new Set(existing.map((r) => r.id));
+  const newRecipes = (data.recipes as Recipe[]).filter((r) => !existingIds.has(r.id));
+  const merged = [...newRecipes, ...existing];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+  return { added: newRecipes.length, skipped: data.recipes.length - newRecipes.length };
+};
+
 export const CATEGORIES = [
   "Frühstück",
   "Mittagessen",
