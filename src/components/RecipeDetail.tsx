@@ -78,13 +78,16 @@ const RecipeDetail = ({ recipe, onBack }: RecipeDetailProps) => {
         <div>
           <h2 className="font-display text-lg font-semibold mb-2">Zutaten</h2>
           <div className="space-y-1.5">
-            {recipe.ingredients.split("\n").filter(Boolean).map((item, i) => (
+            {recipe.ingredients.map((ing: Ingredient, i: number) => (
               <div
                 key={i}
                 className="flex items-center gap-2 text-sm rounded-md bg-card px-3 py-2"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                {scaleIngredient(item)}
+                {ing.amount && (
+                  <span className="font-semibold shrink-0">{scaleAmount(ing.amount)}</span>
+                )}
+                <span>{ing.name}</span>
               </div>
             ))}
           </div>

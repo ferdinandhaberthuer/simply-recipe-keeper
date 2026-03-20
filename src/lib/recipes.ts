@@ -42,7 +42,12 @@ const STORAGE_KEY = "my-recipes";
 
 export const getRecipes = (): Recipe[] => {
   const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+  if (!data) return [];
+  const recipes = JSON.parse(data);
+  return recipes.map((r: any) => ({
+    ...r,
+    ingredients: migrateIngredients(r.ingredients),
+  }));
 };
 
 export const saveRecipe = (recipe: Omit<Recipe, "id" | "createdAt">): Recipe => {
