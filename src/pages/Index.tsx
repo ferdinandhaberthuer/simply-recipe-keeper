@@ -13,6 +13,7 @@ const Index = () => {
   const [recipes, setRecipes] = useState<Recipe[]>(getRecipes);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [search, setSearch] = useState("");
+  const [randomCategory, setRandomCategory] = useState("Alle");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refresh = useCallback(() => {
