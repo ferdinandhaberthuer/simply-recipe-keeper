@@ -12,11 +12,20 @@ const AddRecipeForm = ({ onSaved, onCancel }: AddRecipeFormProps) => {
   const [ingredients, setIngredients] = useState("");
   const [instructions, setInstructions] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]);
+  const [cookingTime, setCookingTime] = useState(30);
+  const [servings, setServings] = useState(2);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !ingredients.trim()) return;
-    saveRecipe({ title: title.trim(), ingredients: ingredients.trim(), instructions: instructions.trim(), category });
+    saveRecipe({
+      title: title.trim(),
+      ingredients: ingredients.trim(),
+      instructions: instructions.trim(),
+      category,
+      cookingTime,
+      servings,
+    });
     onSaved();
   };
 
@@ -61,6 +70,29 @@ const AddRecipeForm = ({ onSaved, onCancel }: AddRecipeFormProps) => {
                 {cat}
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1.5">Kochzeit (Min.)</label>
+            <input
+              type="number"
+              value={cookingTime}
+              onChange={(e) => setCookingTime(Math.max(0, parseInt(e.target.value) || 0))}
+              min={0}
+              className="w-full rounded-lg bg-card px-4 py-3 text-sm outline-none ring-1 ring-border focus:ring-2 focus:ring-primary transition-shadow"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5">Portionen</label>
+            <input
+              type="number"
+              value={servings}
+              onChange={(e) => setServings(Math.max(1, parseInt(e.target.value) || 1))}
+              min={1}
+              className="w-full rounded-lg bg-card px-4 py-3 text-sm outline-none ring-1 ring-border focus:ring-2 focus:ring-primary transition-shadow"
+            />
           </div>
         </div>
 

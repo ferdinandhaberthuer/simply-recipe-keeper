@@ -29,8 +29,14 @@ const RecipeCard = ({ recipe, onSelect, onDelete }: RecipeCardProps) => {
             </span>
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              {date}
+              {recipe.cookingTime ? `${recipe.cookingTime} Min.` : date}
             </span>
+            {recipe.servings > 0 && (
+              <span className="flex items-center gap-1">
+                <Users className="h-3 w-3" />
+                {recipe.servings}
+              </span>
+            )}
           </div>
           <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
             {recipe.ingredients.split("\n").slice(0, 3).join(", ")}

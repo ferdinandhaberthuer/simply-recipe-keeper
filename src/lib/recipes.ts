@@ -4,8 +4,19 @@ export interface Recipe {
   ingredients: string;
   instructions: string;
   category: string;
+  cookingTime: number;
+  servings: number;
   createdAt: string;
 }
+
+export const getRandomRecipe = (category?: string): Recipe | null => {
+  let recipes = getRecipes();
+  if (category && category !== "Alle") {
+    recipes = recipes.filter((r) => r.category === category);
+  }
+  if (recipes.length === 0) return null;
+  return recipes[Math.floor(Math.random() * recipes.length)];
+};
 
 const STORAGE_KEY = "my-recipes";
 
