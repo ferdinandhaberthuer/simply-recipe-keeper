@@ -124,6 +124,42 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Random suggestion */}
+      {recipes.length > 0 && (
+        <div className="mb-5 rounded-lg bg-card p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <Shuffle className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold">Zufälliges Rezept</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {["Alle", ...CATEGORIES].map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setRandomCategory(cat)}
+                className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                  randomCategory === cat
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => {
+              const r = getRandomRecipe(randomCategory);
+              if (r) handleSelect(r);
+              else toast({ title: "Keine Rezepte in dieser Kategorie" });
+            }}
+            className="w-full rounded-lg bg-accent py-2.5 text-sm font-semibold text-accent-foreground transition-transform active:scale-[0.98]"
+          >
+            Überrasch mich!
+          </button>
+        </div>
+      )}
+
       {/* Search */}
       {recipes.length > 0 && (
         <div className="relative mb-5">
