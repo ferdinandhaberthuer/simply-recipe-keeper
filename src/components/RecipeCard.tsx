@@ -1,5 +1,5 @@
 import { Recipe } from "@/lib/recipes";
-import { Clock, Trash2 } from "lucide-react";
+import { Clock, Trash2, Users } from "lucide-react";
 
 interface RecipeCardProps {
   recipe: Recipe;
