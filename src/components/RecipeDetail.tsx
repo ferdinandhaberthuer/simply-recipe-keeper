@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Recipe } from "@/lib/recipes";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Clock, Users, Minus, Plus } from "lucide-react";
 
 interface RecipeDetailProps {
   recipe: Recipe;
@@ -7,6 +8,18 @@ interface RecipeDetailProps {
 }
 
 const RecipeDetail = ({ recipe, onBack }: RecipeDetailProps) => {
+  const [servings, setServings] = useState(recipe.servings || 1);
+  const scale = recipe.servings ? servings / recipe.servings : 1;
+
+  const scaleIngredient = (line: string) => {
+    if (scale === 1) return line;
+    return line.replace(/(\d+([.,]\d+)?)/g, (match) => {
+      const num = parseFloat(match.replace(",", "."));
+      const scaled = num * scale;
+      return scaled % 1 === 0 ? String(scaled) : scaled.toFixed(1).replace(".", ",");
+    });
+  };
+
   return (
     <div className="animate-fade-in">
       <button
@@ -23,6 +36,43 @@ const RecipeDetail = ({ recipe, onBack }: RecipeDetailProps) => {
             {recipe.category}
           </span>
           <h1 className="mt-2 font-display text-2xl font-bold">{recipe.title}</h1>
+          <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
+            {recipe.cookingTime > 0 && (
+              <span className="flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5" />
+                {recipe.cookingTime} Min.
+              </span>
+            )}
+            <span className="flex items-center gap-1">
+              <Users className="h-3.5 w-3.5" />
+              {recipe.servings || 1} {(recipe.servings || 1) === 1 ? "Person" : "Personen"}
+            </span>
+          </div>
+        </div>
+
+        {/* Servings adjuster */}
+        <div className="flex items-center gap-3 rounded-lg bg-card p-3">
+          <span className="text-sm font-medium">Portionen:</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setServings(Math.max(1, servings - 1))}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <Minus className="h-3.5 w-3.5" />
+            </button>
+            <span className="w-8 text-center text-lg font-bold">{servings}</span>
+            <button
+              onClick={() => setServings(servings + 1)}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          {scale !== 1 && (
+            <span className="ml-auto text-xs text-muted-foreground">
+              ×{scale.toFixed(1).replace(".0", "")}
+            </span>
+          )}
         </div>
 
         <div>
@@ -34,7 +84,7 @@ const RecipeDetail = ({ recipe, onBack }: RecipeDetailProps) => {
                 className="flex items-center gap-2 text-sm rounded-md bg-card px-3 py-2"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                {item}
+                {scaleIngredient(item)}
               </div>
             ))}
           </div>
