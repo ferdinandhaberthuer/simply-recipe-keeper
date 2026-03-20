@@ -1,13 +1,33 @@
+export interface Ingredient {
+  amount: string;
+  name: string;
+}
+
 export interface Recipe {
   id: string;
   title: string;
-  ingredients: string;
+  ingredients: Ingredient[];
+  /** @deprecated old string format, kept for migration */
+  ingredientsLegacy?: string;
   instructions: string;
   category: string;
   cookingTime: number;
   servings: number;
   createdAt: string;
 }
+
+/** Migrate old string-based ingredients to structured format */
+export const migrateIngredients = (raw: any): Ingredient[] => {
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") {
+    return raw.split("\n").filter(Boolean).map((line: string) => {
+      const match = line.match(/^(\d+[.,]?\d*\s*\w*)\s+(.+)$/);
+      if (match) return { amount: match[1].trim(), name: match[2].trim() };
+      return { amount: "", name: line.trim() };
+    });
+  }
+  return [];
+};
 
 export const getRandomRecipe = (category?: string): Recipe | null => {
   let recipes = getRecipes();
@@ -22,7 +42,12 @@ const STORAGE_KEY = "my-recipes";
 
 export const getRecipes = (): Recipe[] => {
   const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+  if (!data) return [];
+  const recipes = JSON.parse(data);
+  return recipes.map((r: any) => ({
+    ...r,
+    ingredients: migrateIngredients(r.ingredients),
+  }));
 };
 
 export const saveRecipe = (recipe: Omit<Recipe, "id" | "createdAt">): Recipe => {

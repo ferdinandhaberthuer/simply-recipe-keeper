@@ -39,7 +39,7 @@ const RecipeCard = ({ recipe, onSelect, onDelete }: RecipeCardProps) => {
             )}
           </div>
           <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
-            {recipe.ingredients.split("\n").slice(0, 3).join(", ")}
+            {recipe.ingredients.slice(0, 3).map((ing) => ing.amount ? `${ing.amount} ${ing.name}` : ing.name).join(", ")}
           </p>
         </div>
         <button

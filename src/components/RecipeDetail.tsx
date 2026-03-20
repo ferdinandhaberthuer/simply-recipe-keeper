@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Recipe } from "@/lib/recipes";
+import { Recipe, Ingredient } from "@/lib/recipes";
 import { ArrowLeft, Clock, Users, Minus, Plus } from "lucide-react";
 
 interface RecipeDetailProps {
@@ -11,9 +11,9 @@ const RecipeDetail = ({ recipe, onBack }: RecipeDetailProps) => {
   const [servings, setServings] = useState(recipe.servings || 1);
   const scale = recipe.servings ? servings / recipe.servings : 1;
 
-  const scaleIngredient = (line: string) => {
-    if (scale === 1) return line;
-    return line.replace(/(\d+([.,]\d+)?)/g, (match) => {
+  const scaleAmount = (amount: string) => {
+    if (!amount || scale === 1) return amount;
+    return amount.replace(/(\d+([.,]\d+)?)/g, (match) => {
       const num = parseFloat(match.replace(",", "."));
       const scaled = num * scale;
       return scaled % 1 === 0 ? String(scaled) : scaled.toFixed(1).replace(".", ",");
@@ -78,13 +78,16 @@ const RecipeDetail = ({ recipe, onBack }: RecipeDetailProps) => {
         <div>
           <h2 className="font-display text-lg font-semibold mb-2">Zutaten</h2>
           <div className="space-y-1.5">
-            {recipe.ingredients.split("\n").filter(Boolean).map((item, i) => (
+            {recipe.ingredients.map((ing: Ingredient, i: number) => (
               <div
                 key={i}
                 className="flex items-center gap-2 text-sm rounded-md bg-card px-3 py-2"
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                {scaleIngredient(item)}
+                {ing.amount && (
+                  <span className="font-semibold shrink-0">{scaleAmount(ing.amount)}</span>
+                )}
+                <span>{ing.name}</span>
               </div>
             ))}
           </div>
