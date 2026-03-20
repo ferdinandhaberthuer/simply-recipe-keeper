@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Recipe } from "@/lib/recipes";
+import { Recipe, Ingredient } from "@/lib/recipes";
 import { ArrowLeft, Clock, Users, Minus, Plus } from "lucide-react";
 
 interface RecipeDetailProps {
@@ -11,9 +11,9 @@ const RecipeDetail = ({ recipe, onBack }: RecipeDetailProps) => {
   const [servings, setServings] = useState(recipe.servings || 1);
   const scale = recipe.servings ? servings / recipe.servings : 1;
 
-  const scaleIngredient = (line: string) => {
-    if (scale === 1) return line;
-    return line.replace(/(\d+([.,]\d+)?)/g, (match) => {
+  const scaleAmount = (amount: string) => {
+    if (!amount || scale === 1) return amount;
+    return amount.replace(/(\d+([.,]\d+)?)/g, (match) => {
       const num = parseFloat(match.replace(",", "."));
       const scaled = num * scale;
       return scaled % 1 === 0 ? String(scaled) : scaled.toFixed(1).replace(".", ",");
