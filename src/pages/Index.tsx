@@ -1,9 +1,9 @@
 import { useState, useCallback, useRef } from "react";
-import { getRecipes, deleteRecipe, exportRecipes, importRecipes, Recipe } from "@/lib/recipes";
+import { getRecipes, deleteRecipe, exportRecipes, importRecipes, getRandomRecipe, Recipe, CATEGORIES } from "@/lib/recipes";
 import RecipeCard from "@/components/RecipeCard";
 import RecipeDetail from "@/components/RecipeDetail";
 import AddRecipeForm from "@/components/AddRecipeForm";
-import { Plus, Search, UtensilsCrossed, Download, Upload } from "lucide-react";
+import { Plus, Search, UtensilsCrossed, Download, Upload, Shuffle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 type View = "list" | "add" | "detail";
