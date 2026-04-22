@@ -13,7 +13,7 @@ const Index = () => {
   const [recipes, setRecipes] = useState<Recipe[]>(getRecipes);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [search, setSearch] = useState("");
-  const [randomCategory, setRandomCategory] = useState("Alle");
+  const [filterCategory, setFilterCategory] = useState("Alle");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -82,11 +82,13 @@ const Index = () => {
     setView("detail");
   };
 
-  const filtered = recipes.filter(
-    (r) =>
+  const filtered = recipes.filter((r) => {
+    const matchesSearch =
       r.title.toLowerCase().includes(search.toLowerCase()) ||
-      r.categories?.some((c) => c.toLowerCase().includes(search.toLowerCase()))
-  );
+      r.categories?.some((c) => c.toLowerCase().includes(search.toLowerCase()));
+    const matchesCategory = filterCategory === "Alle" || r.categories?.includes(filterCategory);
+    return matchesSearch && matchesCategory;
+  });
 
   if (view === "add") {
     return (
@@ -141,7 +143,7 @@ const Index = () => {
         <div>
           <h1 className="font-display text-3xl font-bold">Meine Rezepte</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {recipes.length} {recipes.length === 1 ? "Rezept" : "Rezepte"} gespeichert
+            {filterCategory === "Alle" ? `${recipes.length} ${recipes.length === 1 ? "Rezept" : "Rezepte"} gespeichert` : `${filtered.length} von ${recipes.length} Rezepten`}
           </p>
         </div>
         <div className="flex gap-2">
@@ -165,6 +167,21 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Search */}
+      {recipes.length > 0 && (
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rezept suchen..."
+            className="w-full rounded-lg bg-card py-2.5 pl-10 pr-4 text-sm outline-none ring-1 ring-border focus:ring-2 focus:ring-primary transition-shadow"
+          />
+        </div>
+      )}
+
+      
+
       {/* Random suggestion */}
       {recipes.length > 0 && (
         <div className="mb-5 rounded-lg bg-card p-3">
@@ -177,9 +194,9 @@ const Index = () => {
               <button
                 key={cat}
                 type="button"
-                onClick={() => setRandomCategory(cat)}
+                onClick={() => setFilterCategory(cat)}
                 className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
-                  randomCategory === cat
+                  filterCategory === cat
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-secondary-foreground"
                 }`}
@@ -190,7 +207,7 @@ const Index = () => {
           </div>
           <button
             onClick={() => {
-              const r = getRandomRecipe(randomCategory);
+              const r = getRandomRecipe(filterCategory);
               if (r) handleSelect(r);
               else toast({ title: "Keine Rezepte in dieser Kategorie" });
             }}
@@ -198,19 +215,6 @@ const Index = () => {
           >
             Überrasch mich!
           </button>
-        </div>
-      )}
-
-      {/* Search */}
-      {recipes.length > 0 && (
-        <div className="relative mb-5">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rezept suchen..."
-            className="w-full rounded-lg bg-card py-2.5 pl-10 pr-4 text-sm outline-none ring-1 ring-border focus:ring-2 focus:ring-primary transition-shadow"
-          />
         </div>
       )}
 
