@@ -23,10 +23,15 @@ const RecipeCard = ({ recipe, onSelect, onDelete }: RecipeCardProps) => {
           <h3 className="font-display text-lg font-semibold leading-tight truncate">
             {recipe.title}
           </h3>
-          <div className="mt-1.5 flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
-              {recipe.category}
-            </span>
+          <div className="mt-1.5 flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+            {recipe.categories?.map((cat) => (
+              <span
+                key={cat}
+                className="rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground"
+              >
+                {cat}
+              </span>
+            ))}
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
               {recipe.cookingTime ? `${recipe.cookingTime} Min.` : date}

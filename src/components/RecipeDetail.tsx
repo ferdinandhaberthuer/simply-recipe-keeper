@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Recipe, Ingredient } from "@/lib/recipes";
-import { ArrowLeft, Clock, Users, Minus, Plus } from "lucide-react";
+import { ArrowLeft, Clock, Users, Minus, Plus, Pencil, Copy } from "lucide-react";
 
 interface RecipeDetailProps {
   recipe: Recipe;
   onBack: () => void;
+  onEdit: () => void;
+  onDuplicate: () => void;
 }
 
-const RecipeDetail = ({ recipe, onBack }: RecipeDetailProps) => {
+const RecipeDetail = ({ recipe, onBack, onEdit, onDuplicate }: RecipeDetailProps) => {
   const [servings, setServings] = useState(recipe.servings || 1);
   const scale = recipe.servings ? servings / recipe.servings : 1;
 
@@ -22,19 +24,44 @@ const RecipeDetail = ({ recipe, onBack }: RecipeDetailProps) => {
 
   return (
     <div className="animate-fade-in">
-      <button
-        onClick={onBack}
-        className="mb-4 flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Zurück
-      </button>
+      <div className="mb-4 flex items-center justify-between">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Zurück
+        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onDuplicate}
+            className="rounded-lg p-2 text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary"
+            aria-label="Rezept kopieren"
+          >
+            <Copy className="h-4 w-4" />
+          </button>
+          <button
+            onClick={onEdit}
+            className="rounded-lg p-2 text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary"
+            aria-label="Rezept bearbeiten"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
 
       <div className="space-y-6">
         <div>
-          <span className="rounded-md bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground">
-            {recipe.category}
-          </span>
+          <div className="flex flex-wrap gap-2">
+            {recipe.categories?.map((cat) => (
+              <span
+                key={cat}
+                className="rounded-md bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
+              >
+                {cat}
+              </span>
+            ))}
+          </div>
           <h1 className="mt-2 font-display text-2xl font-bold">{recipe.title}</h1>
           <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
             {recipe.cookingTime > 0 && (
@@ -50,7 +77,6 @@ const RecipeDetail = ({ recipe, onBack }: RecipeDetailProps) => {
           </div>
         </div>
 
-        {/* Servings adjuster */}
         <div className="flex items-center gap-3 rounded-lg bg-card p-3">
           <span className="text-sm font-medium">Portionen:</span>
           <div className="flex items-center gap-2">

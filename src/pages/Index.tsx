@@ -6,7 +6,7 @@ import AddRecipeForm from "@/components/AddRecipeForm";
 import { Plus, Search, UtensilsCrossed, Download, Upload, Shuffle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-type View = "list" | "add" | "detail";
+type View = "list" | "add" | "detail" | "edit";
 
 const Index = () => {
   const [view, setView] = useState<View>("list");
@@ -18,7 +18,7 @@ const Index = () => {
 
   useEffect(() => {
     const handleBack = () => {
-      if (view === "detail" || view === "add") {
+      if (view === "detail" || view === "add" || view === "edit") {
         setView("list");
       } else if (view === "list") {
         window.close();
@@ -27,6 +27,17 @@ const Index = () => {
     window.addEventListener("capacitor-back-button", handleBack);
     return () => window.removeEventListener("capacitor-back-button", handleBack);
   }, [view]);
+
+  const handleEdit = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setView("edit");
+  };
+
+  const handleDuplicate = (recipe: Recipe) => {
+    const duplicate = { ...recipe, id: "" };
+    setSelectedRecipe(duplicate);
+    setView("edit");
+  };
 
   const refresh = useCallback(() => {
     setRecipes(getRecipes());
@@ -74,7 +85,7 @@ const Index = () => {
   const filtered = recipes.filter(
     (r) =>
       r.title.toLowerCase().includes(search.toLowerCase()) ||
-      r.category.toLowerCase().includes(search.toLowerCase())
+      r.categories?.some((c) => c.toLowerCase().includes(search.toLowerCase()))
   );
 
   if (view === "add") {
@@ -100,6 +111,24 @@ const Index = () => {
             setSelectedRecipe(null);
             setView("list");
           }}
+          onEdit={() => handleEdit(selectedRecipe)}
+          onDuplicate={() => handleDuplicate(selectedRecipe)}
+        />
+      </div>
+    );
+  }
+
+  if (view === "edit" && selectedRecipe) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-6 pb-24">
+        <AddRecipeForm
+          initialRecipe={selectedRecipe}
+          onSaved={() => {
+            refresh();
+            setView("list");
+            setSelectedRecipe(null);
+          }}
+          onCancel={() => setView("list")}
         />
       </div>
     );

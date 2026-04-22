@@ -1,21 +1,46 @@
-import { useState } from "react";
-import { saveRecipe, CATEGORIES, Ingredient } from "@/lib/recipes";
+import { useState, useEffect } from "react";
+import { saveRecipe, updateRecipe, CATEGORIES, Ingredient, Recipe } from "@/lib/recipes";
 import { ArrowLeft, Plus, X } from "lucide-react";
 
 interface AddRecipeFormProps {
   onSaved: () => void;
   onCancel: () => void;
+  initialRecipe?: Recipe;
 }
 
-const AddRecipeForm = ({ onSaved, onCancel }: AddRecipeFormProps) => {
+const AddRecipeForm = ({ onSaved, onCancel, initialRecipe }: AddRecipeFormProps) => {
+  const isEditing = !!initialRecipe?.id;
   const [title, setTitle] = useState("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([
     { amount: "", name: "" },
   ]);
   const [instructions, setInstructions] = useState("");
-  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [categories, setCategories] = useState<string[]>([CATEGORIES[0]]);
   const [cookingTime, setCookingTime] = useState(30);
   const [servings, setServings] = useState(2);
+
+  useEffect(() => {
+    if (initialRecipe) {
+      setTitle(initialRecipe.title || "");
+      setIngredients(
+        initialRecipe.ingredients?.length
+          ? initialRecipe.ingredients
+          : [{ amount: "", name: "" }]
+      );
+      setInstructions(initialRecipe.instructions || "");
+      setCategories(initialRecipe.categories?.length ? initialRecipe.categories : [CATEGORIES[0]]);
+      setCookingTime(initialRecipe.cookingTime || 30);
+      setServings(initialRecipe.servings || 2);
+    }
+  }, [initialRecipe]);
+
+  const toggleCategory = (cat: string) => {
+    setCategories((prev) =>
+      prev.includes(cat)
+        ? prev.filter((c) => c !== cat)
+        : [...prev, cat]
+    );
+  };
 
   const updateIngredient = (index: number, field: keyof Ingredient, value: string) => {
     setIngredients((prev) =>
@@ -36,17 +61,22 @@ const AddRecipeForm = ({ onSaved, onCancel }: AddRecipeFormProps) => {
     e.preventDefault();
     const validIngredients = ingredients.filter((ing) => ing.name.trim());
     if (!title.trim() || validIngredients.length === 0) return;
-    saveRecipe({
+    const recipeData = {
       title: title.trim(),
       ingredients: validIngredients.map((ing) => ({
         amount: ing.amount.trim(),
         name: ing.name.trim(),
       })),
       instructions: instructions.trim(),
-      category,
+      categories,
       cookingTime,
       servings,
-    });
+    };
+    if (isEditing && initialRecipe?.id) {
+      updateRecipe(initialRecipe.id, recipeData);
+    } else {
+      saveRecipe(recipeData);
+    }
     onSaved();
   };
 
@@ -60,7 +90,9 @@ const AddRecipeForm = ({ onSaved, onCancel }: AddRecipeFormProps) => {
         Zurück
       </button>
 
-      <h1 className="font-display text-2xl font-bold mb-6">Neues Rezept</h1>
+      <h1 className="font-display text-2xl font-bold mb-6">
+        {isEditing ? "Rezept bearbeiten" : "Neues Rezept"}
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
@@ -75,15 +107,15 @@ const AddRecipeForm = ({ onSaved, onCancel }: AddRecipeFormProps) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1.5">Kategorie</label>
+          <label className="block text-sm font-medium mb-1.5">Kategorien</label>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 type="button"
-                onClick={() => setCategory(cat)}
+                onClick={() => toggleCategory(cat)}
                 className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                  category === cat
+                  categories.includes(cat)
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-secondary-foreground"
                 }`}

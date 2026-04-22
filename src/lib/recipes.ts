@@ -10,7 +10,8 @@ export interface Recipe {
   /** @deprecated old string format, kept for migration */
   ingredientsLegacy?: string;
   instructions: string;
-  category: string;
+  /** Changed from string to string[] for multiple categories */
+  categories: string[];
   cookingTime: number;
   servings: number;
   createdAt: string;
@@ -32,13 +33,20 @@ export const migrateIngredients = (raw: any): Ingredient[] => {
 export const getRandomRecipe = (category?: string): Recipe | null => {
   let recipes = getRecipes();
   if (category && category !== "Alle") {
-    recipes = recipes.filter((r) => r.category === category);
+    recipes = recipes.filter((r) => r.categories?.includes(category));
   }
   if (recipes.length === 0) return null;
   return recipes[Math.floor(Math.random() * recipes.length)];
 };
 
 const STORAGE_KEY = "my-recipes";
+
+/** Migrate old single category to new categories array */
+export const migrateCategories = (raw: any): string[] => {
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") return [raw];
+  return [];
+};
 
 export const getRecipes = (): Recipe[] => {
   const data = localStorage.getItem(STORAGE_KEY);
@@ -47,6 +55,7 @@ export const getRecipes = (): Recipe[] => {
   return recipes.map((r: any) => ({
     ...r,
     ingredients: migrateIngredients(r.ingredients),
+    categories: migrateCategories(r.categories || r.category),
   }));
 };
 
@@ -60,6 +69,16 @@ export const saveRecipe = (recipe: Omit<Recipe, "id" | "createdAt">): Recipe => 
   recipes.unshift(newRecipe);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
   return newRecipe;
+};
+
+export const updateRecipe = (id: string, updates: Partial<Recipe>): Recipe => {
+  const recipes = getRecipes();
+  const index = recipes.findIndex((r) => r.id === id);
+  if (index === -1) throw new Error("Recipe not found");
+  const updated = { ...recipes[index], ...updates };
+  recipes[index] = updated;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
+  return updated;
 };
 
 export const deleteRecipe = (id: string): void => {
