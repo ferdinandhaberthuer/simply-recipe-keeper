@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">simply-recipe-keeper</string>
+    <string name="title_activity_main">simply-recipe-keeper</string>
+    <string name="package_name">app.lovable.e47dd3dc603347d5ba94b6af679f5b99</string>
+    <string name="custom_url_scheme">app.lovable.e47dd3dc603347d5ba94b6af679f5b99</string>
+</resources>
