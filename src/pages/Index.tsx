@@ -3,6 +3,8 @@ import { getRecipes, deleteRecipe, exportRecipes, importRecipes, getRandomRecipe
 import RecipeCard from "@/components/RecipeCard";
 import RecipeDetail from "@/components/RecipeDetail";
 import AddRecipeForm from "@/components/AddRecipeForm";
+import { Share } from "@capacitor/share";
+import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Plus, Search, UtensilsCrossed, Download, Upload, Shuffle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -43,16 +45,26 @@ const Index = () => {
     setRecipes(getRecipes());
   }, []);
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const json = exportRecipes();
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `rezepte-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast({ title: `${recipes.length} Rezept(e) exportiert` });
+    const filename = `rezepte-${new Date().toISOString().slice(0, 10)}.json`;
+    try {
+      await Filesystem.writeFile({
+        path: filename,
+        data: json,
+        directory: Directory.Cache,
+        encoding: "utf8",
+      });
+      const file = await Filesystem.getUri({ path: filename, directory: Directory.Cache });
+      await Share.share({
+        title: "Rezepte exportieren",
+        url: file.uri,
+      });
+      toast({ title: `${recipes.length} Rezept(e) exportiert` });
+    } catch (err) {
+      console.error("Export error:", err);
+      toast({ title: "Export fehlgeschlagen", description: String(err), variant: "destructive" });
+    }
   };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
