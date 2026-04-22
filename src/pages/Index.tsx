@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { getRecipes, deleteRecipe, exportRecipes, importRecipes, getRandomRecipe, Recipe, CATEGORIES } from "@/lib/recipes";
 import RecipeCard from "@/components/RecipeCard";
 import RecipeDetail from "@/components/RecipeDetail";
@@ -15,6 +15,18 @@ const Index = () => {
   const [search, setSearch] = useState("");
   const [randomCategory, setRandomCategory] = useState("Alle");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleBack = () => {
+      if (view === "detail" || view === "add") {
+        setView("list");
+      } else if (view === "list") {
+        window.close();
+      }
+    };
+    window.addEventListener("capacitor-back-button", handleBack);
+    return () => window.removeEventListener("capacitor-back-button", handleBack);
+  }, [view]);
 
   const refresh = useCallback(() => {
     setRecipes(getRecipes());
