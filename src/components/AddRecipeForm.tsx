@@ -15,7 +15,7 @@ const AddRecipeForm = ({ onSaved, onCancel, initialRecipe }: AddRecipeFormProps)
     { amount: "", name: "" },
   ]);
   const [instructions, setInstructions] = useState("");
-  const [categories, setCategories] = useState<string[]>([CATEGORIES[0]]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [cookingTime, setCookingTime] = useState(30);
   const [servings, setServings] = useState(2);
 
@@ -28,7 +28,7 @@ const AddRecipeForm = ({ onSaved, onCancel, initialRecipe }: AddRecipeFormProps)
           : [{ amount: "", name: "" }]
       );
       setInstructions(initialRecipe.instructions || "");
-      setCategories(initialRecipe.categories?.length ? initialRecipe.categories : [CATEGORIES[0]]);
+      setCategories(initialRecipe.categories?.length ? initialRecipe.categories : []);
       setCookingTime(initialRecipe.cookingTime || 30);
       setServings(initialRecipe.servings || 2);
     }
@@ -60,7 +60,7 @@ const AddRecipeForm = ({ onSaved, onCancel, initialRecipe }: AddRecipeFormProps)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const validIngredients = ingredients.filter((ing) => ing.name.trim());
-    if (!title.trim() || validIngredients.length === 0) return;
+    if (!title.trim() || validIngredients.length === 0 || categories.length === 0) return;
     const recipeData = {
       title: title.trim(),
       ingredients: validIngredients.map((ing) => ({
@@ -107,7 +107,7 @@ const AddRecipeForm = ({ onSaved, onCancel, initialRecipe }: AddRecipeFormProps)
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1.5">Kategorien</label>
+          <label className="block text-sm font-medium mb-1.5">Kategorien (Pflicht)</label>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => (
               <button
