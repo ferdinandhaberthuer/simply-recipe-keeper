@@ -5,7 +5,7 @@ import RecipeDetail from "@/components/RecipeDetail";
 import AddRecipeForm from "@/components/AddRecipeForm";
 import { Share } from "@capacitor/share";
 import { Filesystem, Directory } from "@capacitor/filesystem";
-import { Plus, Search, UtensilsCrossed, Download, Upload, Shuffle } from "lucide-react";
+import { Plus, Search, UtensilsCrossed, Upload, Shuffle, Download } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 type View = "list" | "add" | "detail" | "edit";
@@ -45,7 +45,7 @@ const Index = () => {
     setRecipes(getRecipes());
   }, []);
 
-  const handleExport = async () => {
+  const handleShare = async () => {
     const json = exportRecipes();
     const filename = `rezepte-${new Date().toISOString().slice(0, 10)}.json`;
     try {
@@ -62,8 +62,8 @@ const Index = () => {
       });
       toast({ title: `${recipes.length} Rezept(e) exportiert` });
     } catch (err) {
-      console.error("Export error:", err);
-      toast({ title: "Export fehlgeschlagen", description: String(err), variant: "destructive" });
+      console.error("Share error:", err);
+      toast({ title: "Teilen fehlgeschlagen", variant: "destructive" });
     }
   };
 
@@ -169,9 +169,10 @@ const Index = () => {
           </button>
           {recipes.length > 0 && (
             <button
-              onClick={handleExport}
+              onClick={handleShare}
               className="rounded-lg bg-secondary p-2.5 text-secondary-foreground transition-colors hover:bg-accent"
-              aria-label="Rezepte exportieren"
+              aria-label="Rezepte teilen"
+              title="Rezepte exportieren"
             >
               <Download className="h-4 w-4" />
             </button>
