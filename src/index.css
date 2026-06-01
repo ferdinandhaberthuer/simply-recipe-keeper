@@ -62,6 +62,20 @@
     padding-left: env(safe-area-inset-left);
   }
 
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    height: 24px;
+    height: max(24px, constant(safe-area-inset-top));
+    height: max(24px, env(safe-area-inset-top, 0px));
+    background: hsl(var(--background));
+    pointer-events: none;
+  }
+
   h1, h2, h3 {
     font-family: 'Playfair Display', serif;
   }
