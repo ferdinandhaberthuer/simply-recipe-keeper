@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'simply-recipe-keeper',
   webDir: 'dist',
   android: {
-    adjustMarginsForEdgeToEdge: 'auto',
+    adjustMarginsForEdgeToEdge: 'never',
   },
 };
 
