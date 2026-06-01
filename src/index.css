@@ -69,9 +69,7 @@
     left: 0;
     right: 0;
     z-index: 9999;
-    height: 24px;
-    height: max(24px, constant(safe-area-inset-top));
-    height: max(24px, env(safe-area-inset-top, 0px));
+    height: env(safe-area-inset-top, 48px);
     background: hsl(var(--background));
     pointer-events: none;
   }

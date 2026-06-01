@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => ({
         name: "Meine Rezepte",
         short_name: "Rezepte",
         description: "Einfach Rezepte speichern und organisieren",
-        theme_color: "#e07820",
+        theme_color: "#f7f3ef",
         background_color: "#f7f3ef",
         display: "standalone",
         orientation: "portrait",
